@@ -1,0 +1,181 @@
+Project 2 — Basic Classification Model
+
+A supervised machine learning project that builds a K-Nearest Neighbors (KNN) classifier on the Iris dataset using Python and scikit-learn.
+
+
+## Project Structure
+
+```
+project-2-classification/
+│
+├── classification_model.py   # Main ML script
+├── README.md                 # Project documentation
+└── ML_Classification_Report.pdf  # Full project report
+```
+
+---
+ Objective
+
+- Load and understand a real-world dataset
+- Split data into training and testing sets
+- Apply a classification algorithm
+- Evaluate model performance using standard metrics
+
+---
+
+## Dataset
+
+**Iris Dataset** (Fisher, 1936) — available via `sklearn.datasets`
+
+| Property | Detail |
+|---|---|
+| Total Samples | 150 |
+| Features | 4 (Sepal Length, Sepal Width, Petal Length, Petal Width) |
+| Target Classes | 3 (Setosa, Versicolor, Virginica) |
+| Samples per Class | 50 (perfectly balanced) |
+| Missing Values | None |
+
+---
+
+## ML Pipeline
+
+```
+Load Data → Explore → Split 80/20 → Scale → Train KNN → Evaluate
+```
+
+---
+
+## Installation
+
+```bash
+pip install scikit-learn pandas numpy matplotlib
+```
+
+---
+
+## Usage
+
+```bash
+python classification_model.py
+```
+
+---
+
+## How It Works
+
+### 1. Load & Explore
+```python
+from sklearn.datasets import load_iris
+import pandas as pd
+
+iris = load_iris()
+df = pd.DataFrame(iris.data, columns=iris.feature_names)
+df['species'] = pd.Categorical.from_codes(iris.target, iris.target_names)
+print(df.describe())
+```
+
+### 2. Train / Test Split
+```python
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.2,       # 80% train, 20% test
+    random_state=42,     # reproducibility
+    stratify=y           # balanced class distribution
+)
+```
+
+### 3. Feature Scaling
+```python
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)  # fit only on train
+X_test_scaled  = scaler.transform(X_test)        # transform test only
+```
+
+### 4. Train KNN Model
+```python
+from sklearn.neighbors import KNeighborsClassifier
+
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train_scaled, y_train)
+```
+
+### 5. Evaluate
+```python
+from sklearn.metrics import accuracy_score, classification_report
+
+y_pred   = model.predict(X_test_scaled)
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+```
+
+---
+
+## Results
+
+| Metric | Value |
+|---|---|
+| **Accuracy** | **93.33%** |
+| Correct Predictions | 28 / 30 |
+| Algorithm | K-Nearest Neighbors (k=5) |
+
+### Per-Class Performance
+
+| Class | Precision | Recall | F1-Score | Support |
+|---|---|---|---|---|
+| Setosa | 1.00 | 1.00 | 1.00 | 10 |
+| Versicolor | 0.83 | 1.00 | 0.91 | 10 |
+| Virginica | 1.00 | 0.80 | 0.89 | 10 |
+| **Macro Average** | **0.94** | **0.93** | **0.93** | **30** |
+
+### Confusion Matrix
+
+```
+                 Predicted
+                 Setosa  Versicolor  Virginica
+Actual Setosa      10        0           0
+       Versicolor   0       10           0
+       Virginica    0        2           8
+```
+
+Only 2 errors — Virginica misclassified as Versicolor due to overlapping petal dimensions.
+
+---
+
+## Key Learnings
+
+**Feature Scaling is Critical**
+KNN uses Euclidean distance — without scaling, features with larger ranges dominate distance calculations.
+
+**Prevent Data Leakage**
+StandardScaler must be fitted on training data only. Fitting on the full dataset leaks test distribution info into the model.
+
+**Stratified Splitting**
+Using `stratify=y` ensures each class is proportionally represented in both train and test sets.
+
+**Why Virginica gets confused**
+Versicolor and Virginica have overlapping petal length and width distributions — a known challenge in this dataset.
+
+---
+
+## Tech Stack
+
+| Tool | Purpose |
+|---|---|
+| Python 3 | Programming language |
+| scikit-learn | ML algorithms & preprocessing |
+| pandas | Data loading & exploration |
+| numpy | Numerical operations |
+| matplotlib | Visualizations |
+
+---
+
+## Internship
+
+This project was completed as **Project 2** during my internship at **Decode Labs**.
+
+---
